@@ -148,13 +148,13 @@ namespace System {
 
             Span<char> separatorChars = stackalloc char[2];
             int separatorCharsWritten = separator.EncodeToUtf16(separatorChars);
-            ReadOnlySpan<char> separatorCharsReadOnly = separatorChars[..separatorCharsWritten];
+            ReadOnlySpan<char> separatorCharsSlice = separatorChars[..separatorCharsWritten];
 
             // IMPORTANT / TODO:
             // We need an overload for string.Split(ReadOnlySpan<char>, int, StringSplitOptions) to avoid copying the separator to a string.
             // The overload is already available internally through SplitInternal but not exposed publicly.
             // For now we'll just convert the separator to a string.
-            return @this.Split(separator.ToString(), count, options); // return @this.Split(separatorCharsReadOnly, count, options);
+            return @this.Split(separator.ToString(), count, options); // return @this.Split(separatorCharsSlice, count, options);
         }
 
         public static string Trim(this string @this, Rune trimRune) {
@@ -165,7 +165,7 @@ namespace System {
             // Convert trimRune to span
             Span<char> trimChars = stackalloc char[2];
             int trimCharsWritten = trimRune.EncodeToUtf16(trimChars);
-            ReadOnlySpan<char> trimCharsReadOnly = trimChars[..trimCharsWritten];
+            ReadOnlySpan<char> trimCharsSlice = trimChars[..trimCharsWritten];
 
             // Trim start
             int index = 0;
@@ -173,10 +173,10 @@ namespace System {
                 if (index > @this.Length) {
                     return string.Empty;
                 }
-                if (!@this.AsSpan(index).StartsWith(trimCharsReadOnly)) {
+                if (!@this.AsSpan(index).StartsWith(trimCharsSlice)) {
                     break;
                 }
-                index += trimCharsReadOnly.Length;
+                index += trimCharsSlice.Length;
             }
 
             // Trim end
@@ -185,10 +185,10 @@ namespace System {
                 if (endIndex < index) {
                     return string.Empty;
                 }
-                if (!@this.AsSpan(..endIndex).EndsWith(trimCharsReadOnly)) {
+                if (!@this.AsSpan(..endIndex).EndsWith(trimCharsSlice)) {
                     break;
                 }
-                endIndex -= trimCharsReadOnly.Length;
+                endIndex -= trimCharsSlice.Length;
             }
 
             return @this[index..endIndex];
@@ -201,7 +201,7 @@ namespace System {
             // Convert trimRune to span
             Span<char> trimChars = stackalloc char[2];
             int trimCharsWritten = trimRune.EncodeToUtf16(trimChars);
-            ReadOnlySpan<char> trimCharsReadOnly = trimChars[..trimCharsWritten];
+            ReadOnlySpan<char> trimCharsSlice = trimChars[..trimCharsWritten];
 
             // Trim start
             int index = 0;
@@ -209,10 +209,10 @@ namespace System {
                 if (index > @this.Length) {
                     return string.Empty;
                 }
-                if (!@this.AsSpan(index).StartsWith(trimCharsReadOnly)) {
+                if (!@this.AsSpan(index).StartsWith(trimCharsSlice)) {
                     break;
                 }
-                index += trimCharsReadOnly.Length;
+                index += trimCharsSlice.Length;
             }
             return @this[index..];
         }
@@ -224,7 +224,7 @@ namespace System {
             // Convert trimRune to span
             Span<char> trimChars = stackalloc char[2];
             int trimCharsWritten = trimRune.EncodeToUtf16(trimChars);
-            ReadOnlySpan<char> trimCharsReadOnly = trimChars[..trimCharsWritten];
+            ReadOnlySpan<char> trimCharsSlice = trimChars[..trimCharsWritten];
 
             // Trim end
             int endIndex = @this.Length - 1;
@@ -232,10 +232,10 @@ namespace System {
                 if (endIndex < 0) {
                     return string.Empty;
                 }
-                if (!@this.AsSpan(..endIndex).EndsWith(trimCharsReadOnly)) {
+                if (!@this.AsSpan(..endIndex).EndsWith(trimCharsSlice)) {
                     break;
                 }
-                endIndex -= trimCharsReadOnly.Length;
+                endIndex -= trimCharsSlice.Length;
             }
             return @this[..endIndex];
         }
@@ -243,9 +243,9 @@ namespace System {
 
     public static class CharExtensions {
         public static bool Equals(this char @this, char value, StringComparison comparisonType) {
-            ReadOnlySpan<char> leftCharsReadOnly = [@this];
-            ReadOnlySpan<char> rightCharsReadOnly = [value];
-            return leftCharsReadOnly.Equals(rightCharsReadOnly, comparisonType);
+            ReadOnlySpan<char> leftCharsSlice = [@this];
+            ReadOnlySpan<char> rightCharsSlice = [value];
+            return leftCharsSlice.Equals(rightCharsSlice, comparisonType);
         }
     }
 }
@@ -263,15 +263,15 @@ namespace System.Text {
             // Convert left to span
             Span<char> leftChars = stackalloc char[2];
             int leftCharsWritten = left.EncodeToUtf16(leftChars);
-            ReadOnlySpan<char> leftCharsReadOnly = leftChars[..leftCharsWritten];
+            ReadOnlySpan<char> leftCharsSlice = leftChars[..leftCharsWritten];
 
             // Convert right to span
             Span<char> rightChars = stackalloc char[2];
             int rightCharsWritten = right.EncodeToUtf16(rightChars);
-            ReadOnlySpan<char> rightCharsReadOnly = rightChars[..rightCharsWritten];
+            ReadOnlySpan<char> rightCharsSlice = rightChars[..rightCharsWritten];
 
             // Compare span equality
-            return leftCharsReadOnly.Equals(rightCharsReadOnly, comparisonType);
+            return leftCharsSlice.Equals(rightCharsSlice, comparisonType);
         }
     }
 
@@ -328,15 +328,15 @@ namespace System.Text {
             // Convert oldRune to span
             Span<char> leftChars = stackalloc char[2];
             int leftCharsWritten = oldRune.EncodeToUtf16(leftChars);
-            ReadOnlySpan<char> leftCharsReadOnly = leftChars[..leftCharsWritten];
+            ReadOnlySpan<char> leftCharsSlice = leftChars[..leftCharsWritten];
 
             // Convert newRune to span
             Span<char> rightChars = stackalloc char[2];
             int rightCharsWritten = newRune.EncodeToUtf16(rightChars);
-            ReadOnlySpan<char> rightCharsReadOnly = rightChars[..rightCharsWritten];
+            ReadOnlySpan<char> rightCharsSlice = rightChars[..rightCharsWritten];
 
             // Replace span with span
-            return @this.Replace(leftCharsReadOnly, rightCharsReadOnly, startIndex, count);
+            return @this.Replace(leftCharsSlice, rightCharsSlice, startIndex, count);
         }
     }
 }
