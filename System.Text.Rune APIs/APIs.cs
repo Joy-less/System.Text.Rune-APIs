@@ -280,10 +280,10 @@ namespace System.Text {
             // Convert value to span
             Span<char> chars = stackalloc char[2];
             int charsWritten = value.EncodeToUtf16(chars);
-            ReadOnlySpan<char> valueReadOnly = chars[..charsWritten];
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
             // Append span
-            @this.Append(valueReadOnly);
+            @this.Append(charsSlice);
             return @this;
         }
 
@@ -347,28 +347,28 @@ namespace System.IO {
             // Convert value to span
             Span<char> chars = stackalloc char[2];
             int charsWritten = value.EncodeToUtf16(chars);
-            ReadOnlySpan<char> valueReadOnly = chars[..charsWritten];
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
             // Write span
-            @this.Write(valueReadOnly);
+            @this.Write(charsSlice);
         }
 
         public static Task WriteAsync(this TextWriter @this, Rune value) {
             // Convert value to span
             Span<char> chars = stackalloc char[2];
             int charsWritten = value.EncodeToUtf16(chars);
-            ReadOnlySpan<char> valueReadOnly = chars[..charsWritten];
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
             // Write chars individually (can't use span with async)
-            if (valueReadOnly.Length == 2) {
+            if (charsSlice.Length == 2) {
                 async Task WriteAsyncPair(char highSurrogate, char lowSurrogate) {
                     await @this.WriteAsync(highSurrogate);
                     await @this.WriteAsync(lowSurrogate);
                 }
-                return WriteAsyncPair(valueReadOnly[0], valueReadOnly[1]);
+                return WriteAsyncPair(charsSlice[0], charsSlice[1]);
             }
             else {
-                return @this.WriteAsync(valueReadOnly[0]);
+                return @this.WriteAsync(charsSlice[0]);
             }
         }
 
@@ -376,28 +376,28 @@ namespace System.IO {
             // Convert value to span
             Span<char> chars = stackalloc char[2];
             int charsWritten = value.EncodeToUtf16(chars);
-            ReadOnlySpan<char> valueReadOnly = chars[..charsWritten];
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
             // Write span
-            @this.WriteLine(valueReadOnly);
+            @this.WriteLine(charsSlice);
         }
 
         public static Task WriteLineAsync(this TextWriter @this, Rune value) {
             // Convert value to span
             Span<char> chars = stackalloc char[2];
             int charsWritten = value.EncodeToUtf16(chars);
-            ReadOnlySpan<char> valueReadOnly = chars[..charsWritten];
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
             // Write chars individually (can't use span with async)
-            if (valueReadOnly.Length == 2) {
+            if (charsSlice.Length == 2) {
                 async Task WriteLineAsyncPair(char highSurrogate, char lowSurrogate) {
                     await @this.WriteAsync(highSurrogate);
                     await @this.WriteLineAsync(lowSurrogate);
                 }
-                return WriteLineAsyncPair(valueReadOnly[0], valueReadOnly[1]);
+                return WriteLineAsyncPair(charsSlice[0], charsSlice[1]);
             }
             else {
-                return @this.WriteLineAsync(valueReadOnly[0]);
+                return @this.WriteLineAsync(charsSlice[0]);
             }
         }
     }
