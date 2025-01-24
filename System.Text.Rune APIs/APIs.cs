@@ -406,20 +406,32 @@ namespace System.IO {
 namespace System.Globalization {
     public static class TextInfoExtensions {
         public static Rune ToLower(this TextInfo @this, Rune r) {
-            // IMPORTANT / TODO:
-            // We need an overload for TextInfo.ToLower(ReadOnlySpan<char>) to avoid copying the rune to a string.
-            // The overload is already available internally through ChangeCaseCommon but not exposed publicly.
+            // Convert rune to span
+            Span<char> chars = stackalloc char[2];
+            int charsWritten = r.EncodeToUtf16(chars);
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
-            Rune.DecodeFromUtf16(@this.ToLower(r.ToString()), out Rune result, out _);
-            return result;
+            // Change span to lower and convert to rune
+            if (charsSlice.Length == 2) {
+                return new Rune(@this.ToLower(charsSlice[0]), @this.ToLower(charsSlice[1]));
+            }
+            else {
+                return new Rune(@this.ToLower(charsSlice[0]));
+            }
         }
         public static Rune ToUpper(this TextInfo @this, Rune r) {
-            // IMPORTANT / TODO:
-            // We need an overload for TextInfo.ToUpper(ReadOnlySpan<char>) to avoid copying the rune to a string.
-            // The overload is already available internally through ChangeCaseCommon but not exposed publicly.
+            // Convert rune to span
+            Span<char> chars = stackalloc char[2];
+            int charsWritten = r.EncodeToUtf16(chars);
+            ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
-            Rune.DecodeFromUtf16(@this.ToUpper(r.ToString()), out Rune result, out _);
-            return result;
+            // Change span to upper and convert to rune
+            if (charsSlice.Length == 2) {
+                return new Rune(@this.ToUpper(charsSlice[0]), @this.ToUpper(charsSlice[1]));
+            }
+            else {
+                return new Rune(@this.ToUpper(charsSlice[0]));
+            }
         }
     }
 }
