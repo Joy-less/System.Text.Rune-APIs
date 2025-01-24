@@ -281,8 +281,7 @@ namespace System.Text {
             ReadOnlySpan<char> charsSlice = chars[..charsWritten];
 
             // Append span
-            @this.Append(charsSlice);
-            return @this;
+            return @this.Append(charsSlice);
         }
 
         public static Rune GetRuneAt(this StringBuilder @this, int index) {
@@ -315,8 +314,7 @@ namespace System.Text {
         public static StringBuilder Insert(this StringBuilder @this, int index, Rune value) {
             Span<char> chars = stackalloc char[2];
             int charsWritten = value.EncodeToUtf16(chars);
-            @this.Insert(index, chars[..charsWritten]);
-            return @this;
+            return @this.Insert(index, chars[..charsWritten]);
         }
 
         public static StringBuilder Replace(this StringBuilder @this, Rune oldRune, Rune newRune) {
