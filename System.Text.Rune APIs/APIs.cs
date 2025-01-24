@@ -118,24 +118,21 @@ namespace System {
                 return @this;
             }
 
-            // IMPORTANT / TODO:
-            // We need an overload for string.Replace(ReadOnlySpan<char> oldValue, ReadOnlySpan<char> newValue, int startIndex, int count) to avoid using a StringBuilder.
-            // The overload is already available internally through ReplaceCor but not exposed publicly.
-            // When added, this method can look like the StringBuilder Replace method below.
-            // For now we'll just build a string with a new StringBuilder.
+            Span<char> oldChars = stackalloc char[2];
+            int oldCharsWritten = oldRune.EncodeToUtf16(oldChars);
+            ReadOnlySpan<char> oldCharsSlice = oldChars[..oldCharsWritten];
 
-            StringBuilder stringBuilder = new(@this.Length);
+            Span<char> newChars = stackalloc char[2];
+            int newCharsWritten = newRune.EncodeToUtf16(newChars);
+            ReadOnlySpan<char> newCharsSlice = newChars[..newCharsWritten];
 
-            foreach (Rune rune in @this.EnumerateRunes()) {
-                if (oldRune.Equals(rune, stringComparison)) {
-                    stringBuilder.Append(newRune);
-                }
-                else {
-                    stringBuilder.Append(rune);
-                }
-            }
+            // TODO:
+            // We need an overload for string.Replace(ReadOnlySpan<char> oldValue, ReadOnlySpan<char> newValue) to avoid allocations.
+            // The overload is already available internally through ReplaceCore but not exposed publicly.
+            // When added, this method can look like the StringBuilder.Replace(Rune, Rune).
+            // For now we'll just convert the runes to strings.
 
-            return stringBuilder.ToString();
+            return @this.Replace(oldRune.ToString(), newRune.ToString(), stringComparison); // return @this.Replace(oldCharsSlice, newCharsSlice, stringComparison);
         }
 
         public static string[] Split(this string @this, Rune separator, StringSplitOptions options = StringSplitOptions.None) {
@@ -150,10 +147,11 @@ namespace System {
             int separatorCharsWritten = separator.EncodeToUtf16(separatorChars);
             ReadOnlySpan<char> separatorCharsSlice = separatorChars[..separatorCharsWritten];
 
-            // IMPORTANT / TODO:
+            // TODO:
             // We need an overload for string.Split(ReadOnlySpan<char>, int, StringSplitOptions) to avoid copying the separator to a string.
             // The overload is already available internally through SplitInternal but not exposed publicly.
             // For now we'll just convert the separator to a string.
+
             return @this.Split(separator.ToString(), count, options); // return @this.Split(separatorCharsSlice, count, options);
         }
 
